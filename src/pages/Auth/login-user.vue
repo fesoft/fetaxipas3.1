@@ -10,7 +10,7 @@
           @submit="loginUser"
         >
        <q-card>
-        <q-bar class="bg-secondary text-white">
+        <q-bar class="bg-primary text-white rounded-top-bar">
           <q-space />
           <div class="text-weight-bold">
             {{title}}
@@ -27,7 +27,7 @@
           </app-input>
           </q-card-section>
           <q-card-actions class="justify-center">
-            <q-btn label="Continuar" type="submit" color="positive" size="sm" :disable="disable"></q-btn>
+            <q-btn rounded label="Continuar" type="submit" color="positive" size="sm" :disable="disable"></q-btn>
           </q-card-actions>
         </q-card>
         </q-form>

@@ -10,7 +10,7 @@
       @submit="login"
       >
       <q-card>
-        <q-bar class="bg-secondary text-white">
+        <q-bar class="bg-primary text-white rounded-top-bar">
           <q-space />
           <div class="text-weight-bold">
             {{title}}
@@ -26,8 +26,8 @@
         </app-input>
         <q-input
         autofocus
-        stack-label
-        label-color="grey-9"
+        rounded
+        standout       
         hide-bottom-space
         v-model="form.senha"
         label="Senha"
@@ -44,8 +44,8 @@
       </q-input>
     </q-card-section>
     <q-card-actions class="justify-center row">
-      <q-btn label="Login" type="submit" color="positive" size="sm" class="col-12" :disable="disable"></q-btn>
-      <q-btn label="Recuperar Senha"  color="blue" flat no-caps size="sm" @click="recover" class="col-12"></q-btn>
+      <q-btn rounded label="Login" type="submit" color="positive" size="sm" class="col-12" :disable="disable"></q-btn>
+      <q-btn rounded label="Recuperar Senha"  color="blue" flat no-caps size="sm" @click="recover" class="col-12"></q-btn>
     </q-card-actions>
   </q-card>
 </q-form>

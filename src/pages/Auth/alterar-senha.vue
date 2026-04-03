@@ -10,7 +10,7 @@
       @submit="save"
       >
       <q-card class="q-mt-md q-mr-sm">
-        <q-bar v-if="!$q.platform.is.mobile" class="bg-secondary text-white">
+        <q-bar v-if="!$q.platform.is.mobile" class="bg-primary text-white rounded-top-bar">
           <div class="text-weight-bold justify-center">{{title}}</div>
         </q-bar>
         <q-card-section class="q-col-gutter-xs">
@@ -31,6 +31,7 @@
           label="Salvar"
           color="positive"
           placeholder
+          rounded
           />
         </q-card-actions>
       </q-card>

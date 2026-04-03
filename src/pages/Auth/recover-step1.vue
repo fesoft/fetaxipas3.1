@@ -10,7 +10,7 @@
       @submit="save"
       >
       <q-card>
-        <q-bar class="bg-secondary text-white">
+        <q-bar class="bg-primary text-white rounded-top-bar">
           <q-space />
           <div class="text-weight-bold">
             {{title}}
