@@ -1,96 +1,53 @@
 <template>
   <q-page :padding="!$q.platform.is.mobile" class="docs-input row items-top justify-center">
     <div style="width: 600px; max-width: 100vw;">
-      <q-form
-      ref="myForm"
-      autocorrect="off"
-      autocapitalize="off"
-      autocomplete="off"
-      spellcheck="false"
-      @submit="onSubmit"
-      @reset="onReset"
-      >
+      <q-form ref="myForm" autocorrect="off" autocapitalize="off" autocomplete="off" spellcheck="false"
+        @submit="onSubmit" @reset="onReset" @validation-error="onValidateError">
 
-      <q-card>
-        <q-bar class="bg-secondary text-white">
-          <div class="text-weight-bold justify-center">{{formTitle || title}}</div>
-        </q-bar>
+        <q-card>
+          <q-bar v-if="!$q.platform.is.mobile" class="bg-primary text-white rounded-top-bar">
+            <div class="text-weight-bold justify-center">{{ formTitle }}</div>
+          </q-bar>
 
-        <q-card-section v-for="aba in aFields" :key="aba.name" class="row q-col-gutter-xs">
-          <component v-show="aba.visible || aba.visible == undefined" v-if="aba.is !== 'q-separator'" :is="aba.is" :title="aba.label" class="col-12 q-mb-xs"></component>
-          <component
-          v-for="field in aba.fields.filter(item => item.visible === undefined || item.visible)"
-          :key="field.name"
-          :is="field.is"
-          :ref="field.name"
-          :value="field.model"
-          :rules="field.rules || []"
-          v-model="form[field.name]"
-          :readonly="field.readonly || readonly"
-          :options="field.options || options[field.name]"
-          :disable="field.disable || disableField(field.name)"
-          :label="getLabel(field)"
-          v-bind="field"
-          @update:model-value="formInput(field.name, form[field.name])"
-          @blur="formBlur(field.name, form[field.name])"
-          ></component>
-        </q-card-section>
+          <q-card-section v-for="aba in aFields" :key="aba.name" class="row q-col-gutter-xs">
+            <component v-show="aba.visible || aba.visible == undefined" v-if="aba.is !== 'q-separator'" :is="aba.is"
+              :title="aba.label" class="col-12 q-mb-xs"></component>
+            <component v-for="field in aba.fields.filter(item => item.visible === undefined || item.visible)"
+              :key="field.name" v-bind="field" :is="field.is" :ref="field.name" :value="field.model"
+              :rules="field.rules || []" v-model="form[field.name]" :readonly="field.readonly || readonly"
+              :options="field.options || options[field.name]" :disable="field.disable || disableField(field.name)"
+              :label="getLabel(field)" @update:model-value="formInput(field.name, form[field.name])"
+              @blur="formBlur(field.name, form[field.name])" @update:raw-value="formRawValue(field.name, $event)">
+            </component>
+          </q-card-section>
 
-        <q-card-section class="q-col-gutter-xs">
-          <div v-for="(grid, index) in gridItems" :key="index">
-            <component
-            :is="grid.is"
-            v-bind="grid.props"
-            :fk="form[primaryKey]"
-            :parentRow="form"
-            :options="options == undefined ? {} : options"
-            :readonly="readonly"
-            :rows="form.items[index] ? form.items[index].rows : []"
-            ></component>
-          </div>
-        </q-card-section>
+          <q-card-section class="q-col-gutter-xs">
+            <div v-for="(grid, index) in gridItems" :key="index">
+              <component :is="grid.is" v-bind="grid.props" :fk="form[primaryKey]" :parentRow="form"
+                :options="options == undefined ? {} : options"
+                :readonly="grid.readonly === undefined ? readonly : grid.readonly"
+                :p-visible-columns="visibleColumnsItems" :rows="form.items[index] ? form.items[index].rows : []">
+              </component>
+            </div>
+          </q-card-section>
 
-        <q-separator />
-        <q-card-actions v-if="!$q.screen.lt.sm" align="center">
+          <q-separator />
+          <q-card-actions v-if="!buttons && !readonly" align="center">
+            <q-btn rounded v-if="!readonly" type="submit" size="sm" label="Salvar" :disable="disable" color="positive" />
+            <q-btn rounded v-if="!$q.platform.is.mobile" color="primary" label="Sair" size="sm" @click="onCancelClick" />
+          </q-card-actions>
 
-          <component
-          v-if="buttons && !readonly"
-          v-for="button in buttons"
-          :key="button.name"
-          :is="button.is"
-          :label="button.label"
-          :disable="disable"
-          :color="button.color"
-          @click="handler(button.name)"
-          >
-        </component>
+          <q-card-actions v-if="buttons && method !== 'view'" align="center">
+            <component v-for="button in aButtons.filter(item => item.visible)" :key="button.name" :is="button.is"
+              :disable="disable" v-show="showButton[button.name] == undefined ? true : showButton[button.name]"
+              v-bind="button" rounded @click="handler(button.name)">
+            </component>
+          </q-card-actions>
+        </q-card>
 
-        <q-btn
-        v-if="!buttons && !readonly"
-        type="submit"
-        round
-        color="positive"
-        icon="save"
-        :disable="disable"
-        >
-      </q-btn>
-
-    </q-card-actions>
-
-  </q-card>
-  <q-page-sticky v-if="$q.screen.lt.sm " position="bottom-right" :offset="[18, 18]">
-    <q-btn
-    v-if="!readonly"
-    type="submit"
-    round
-    color="positive"
-    icon="save"
-    >
-  </q-btn>
-</q-page-sticky>
-</q-form>
-</div>
-</q-page>
+      </q-form>
+    </div>
+  </q-page>
 </template>
 
 <script>
@@ -102,7 +59,6 @@ import AppInputCnpj from 'components/AppInputCnpj.vue'
 import AppInputNumber from 'components/AppInputNumber.vue'
 import AppDate from 'components/AppDate.vue'
 import AppTime from 'components/AppTime.vue'
-import AppSearch from 'components/AppSearch.vue'
 import AppCombobox from 'components/AppCombobox.vue'
 import AppSelect from 'components/AppSelect.vue'
 import AppMultiselect from 'components/AppMultiselect.vue'
@@ -128,21 +84,34 @@ export default defineComponent({
     AppCombobox,
     AppSelect
   },
-  mixins: [ formMixin, optionsMixin ],
+  mixins: [formMixin, optionsMixin],
+  data: () => {
+    return {
+      showButton: {},
+      options: {},
+      aButtons: []
+    }
+  },
   methods: {
-    getLabel(field){
+    getLabel(field) {
       return field.required ? field.label + '*' : field.label
     },
-    formBlur(){},
-    disableField(field){
+    formBlur() { },
+    formRawValue() { },
+    disableField(field) {
       return false
     },
   },
-  created () {
+  created() {
+    this.formTitle = this.title
     this.action = this.method;
     this.aFields = clone(this.fields);
     this.aGridItems = clone(this.gridItems);
-    this.aFields[0].fields[0].autofocus = !this.$q.platform.is.mobile;
+    if (this.method == 'new') {
+      this.onNew()
+    };
+    this.aFields[0].fields[0].autofocus = !this.$q.platform.is.mobile
+    this.aButtons = clone(this.buttons);
   }
 })
 </script>

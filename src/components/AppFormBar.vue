@@ -1,5 +1,5 @@
 <template>
-  <q-bar class="bg-secondary text-white">
+  <q-bar class="bg-primary text-white">
     <div class="text-weight-bold">{{title}}</div>
     <q-space />
     <q-btn dense flat icon="close" @click="handler">

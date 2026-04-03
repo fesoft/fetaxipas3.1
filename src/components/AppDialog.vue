@@ -24,7 +24,7 @@
 
     <q-separator />
     <q-card-actions align="center">
-      <q-btn type="submit" size="sm" label="OK" color="positive" />
+      <q-btn  rounded type="submit" size="sm" label="OK" color="positive" />
     </q-card-actions>
   </q-form>
 </q-card>

@@ -1,11 +1,12 @@
 <template>
   <div class="q-pa-sm">
-    <div class="row q-pa-sm  items-center justify-center">
-      <q-btn label="MINHAS VIAGENS" to="viagens" color="secondary" icon="directions_car" class="col-12" square stack size="lg" />
-      <q-btn label="MEUS DADOS" to="meusdados" color="primary" icon="list" class="col-12" square stack
+    <div class="row q-pa-sm  q-gutter-sm items-center justify-center">
+      <q-btn v-if="config?.PASSAG_SOLICITA_VIAGEM == 'S'" label="SOLICITAR VIAGEM" to="vwprogramacaocliente" color="teal" icon="add_location" class="col-12"  rounded stack size="lg" />
+      <q-btn label="MINHAS VIAGENS" to="viagens" color="teal-10" icon="directions_car" class="col-12" rounded stack size="lg" />
+      <q-btn label="AUTUALIZAR ENDEREÇO" to="meusdados" color="teal-5" icon="list" rounded stack class="col-12" 
         size="lg" />
     </div>    
-  <q-btn
+  <!--q-btn
     model="subscription"
     round
     color="red"
@@ -14,7 +15,7 @@
     @click="pushButton"
     class="fixed"
     style="left: 18px; bottom: 18px"
-    ></q-btn>
+    ></q-btn-->
   </div>
 </template>
 
@@ -24,7 +25,6 @@ import { notificationMixin } from 'src/mixins/notificationMixin'
 import { optionsMixin } from 'src/mixins/optionsMixin'
 import { mapState } from 'pinia'
 import { useAuthStore } from 'stores/auth-store'
-import { useDashboardStore } from 'stores/dashboard-store'
 
 export default defineComponent({
   name: 'Index',
@@ -33,11 +33,10 @@ export default defineComponent({
   //
   },
   computed: {
-    ...mapState (useAuthStore, [ 'user' ]),
-    ...mapState (useDashboardStore, [ 'cooperativa' ]),
-  },
+    ...mapState (useAuthStore, [ 'user', 'config' ]),    
+  },   
   mounted() {
-
+    this.pushButton();
   }
 })
 </script>

@@ -5,7 +5,7 @@
   v-model="model"
   @keydown="onKeyDown"
   >
-  <q-card class="q-dialog-plugin" :style="dialogStyle">
+  <q-card class="q-dialog-plugin rounded-top-bar" :style="dialogStyle">
     <q-form
     ref="myForm"
     autocorrect="off"
@@ -14,13 +14,15 @@
     spellcheck="false"
     @submit="onSubmit"
     @reset="onReset"
+    @validation-error="onValidateError"
     >
-    <app-form-bar :title="formTitle" :handler="hide"></app-form-bar>
+    <app-form-bar :title="title" :handler="hide"></app-form-bar>
     <div  style="max-height: 80vh" class="scroll">
       <q-card-section v-for="aba in aFields" :key="aba.name" class="row q-col-gutter-xs">
         <component v-show="aba.visible || aba.visible == undefined" v-if="aba.is !== 'q-separator'" :is="aba.is" :title="aba.label" class="col-12 q-mb-xs"></component>
         <component
         v-for="field in aba.fields.filter(item => item.visible === undefined || item.visible)"
+        v-bind="field"
         :key="field.name"
         :is="field.is"
         :ref="field.name"
@@ -31,13 +33,13 @@
         :options="field.options || options[field.name]"
         :disable="field.disable || disableField(field.name)"
         :label="getLabel(field)"
-        v-bind="field"
         @update:model-value="formInput(field.name, form[field.name])"
         @blur="formBlur(field.name, form[field.name])"
+        @update:raw-value="formRawValue(field.name, $event)"
         ></component>
       </q-card-section>
 
-      <q-card-section v-show="showGridItems"  class="q-col-gutter-xs">
+      <q-card-section v-show="showGridItems" class="q-col-gutter-xs">
         <div v-for="(grid, index) in aGridItems" :key="index">
           <component
           :is="grid.is"
@@ -56,15 +58,14 @@
   </div>
   <q-separator />
 
-  <q-card-actions v-if="buttons == undefined" align="center">
-    <q-btn v-if="!readonly" type="submit" size="sm" label="Salvar F9" :disable="disable" color="positive" />
-    <q-btn ref="btnReset" v-if="!readonly && action == 'edit'" color="primary" label="Novo" size="sm" @click="formReset"/>
-    <q-btn color="primary" label="Sair" size="sm"  @click="onCancelClick" />
+  <q-card-actions v-if="!buttons && !readonly" align="center">
+    <q-btn rounded v-if="!readonly" type="submit" size="sm" label="Salvar F9" :disable="disable" color="positive" />
+    <q-btn rounded color="primary" label="Sair" size="sm"  @click="onCancelClick" />
   </q-card-actions>
 
-  <q-card-actions v-if="buttons && !readonly" align="center">
+  <q-card-actions v-if="buttons && method !== 'view'" align="center">
     <component
-    v-for="button in buttons"
+    v-for="button in aButtons.filter(item => item.visible)"
     :key="button.name"
     :is="button.is"
     :disable="disable"
@@ -73,7 +74,7 @@
     @click="handler(button.name)"
     >
   </component>
-  <q-btn color="primary" label="Sair" size="sm"  @click="onCancelClick" />
+  <q-btn rounded color="primary" label="Sair" size="sm"  @click="onCancelClick" />
 </q-card-actions>
 
 </q-form>
@@ -83,7 +84,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, readonly } from 'vue'
 import AppCrudItem from 'components/AppCrudItem.vue'
 import AppInput from 'components/AppInput.vue'
 import AppInputCpf from 'components/AppInputCpf.vue'
@@ -91,7 +92,6 @@ import AppInputCnpj from 'components/AppInputCnpj.vue'
 import AppInputNumber from 'components/AppInputNumber.vue'
 import AppDate from 'components/AppDate.vue'
 import AppTime from 'components/AppTime.vue'
-import AppSearch from 'components/AppSearch.vue'
 import AppCombobox from 'components/AppCombobox.vue'
 import AppMultiselect from 'components/AppMultiselect.vue'
 import AppMoney from 'components/AppMoney.vue'
@@ -149,7 +149,8 @@ export default defineComponent({
       showButton: {},
       scrollInfo: {},
       options: {},
-      model: false
+      model: false,
+      aButtons: []
     }
   },
   methods: {
@@ -162,6 +163,7 @@ export default defineComponent({
     formInput(field, val){
       //
     },
+    formRawValue() {},
     formBlur(field){
       //
     },
@@ -195,6 +197,7 @@ export default defineComponent({
   },
   created () {
     this.action = this.method;
+    this.aButtons = this.aButtons ? clone(this.buttons) : []
     this.aFields = clone(this.fields);
     this.aGridItems = clone(this.gridItems);
     this.aFields[0].fields[0].autofocus = !this.$q.platform.is.mobile;

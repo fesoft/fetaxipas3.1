@@ -7,6 +7,7 @@
     label="Salvar"
     color="positive"
     placeholder
+    rounded
     @click="$emit('save')"
     ></q-btn>
     <q-btn
@@ -14,6 +15,7 @@
     dense
     color="primary"
     label="Fechar"
+    rounded
     v-close-popup
     ></q-btn>
   </q-card-actions>

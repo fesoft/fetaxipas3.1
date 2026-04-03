@@ -1,14 +1,13 @@
 <template>
   <q-select
   ref="appMultiSelect"
-  dense
+ rounded
+ standout
   options-dense
   clearable
-  stackLabel
   hide-bottom-space
   emit-value
   map-options
-  outlined
   multiple
   no-error-icon
   :autofocus="autofocus"
@@ -27,6 +26,7 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'AppMultiselect',
+  emits: [ 'update:model-value' ],
   data () {
     return {
       model: []

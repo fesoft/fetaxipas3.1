@@ -1,12 +1,15 @@
 <template>
   <q-input
-  label-color="grey-9"
+   v-bind="attrs"
+  dense
+  rounded
+  standout
+  clearable
+  debounce="500"
   hide-bottom-space
-  borderless
   v-model="model"
   placeholder="Pesquisar..."
   @update:model-value="input"
-  v-bind="attrs"
   style="width: 150px;"
   >
   <template v-slot:append> <q-icon name="search" /></template>

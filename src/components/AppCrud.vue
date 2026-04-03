@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-xs">
     <app-form-section :title="grid.title" v-show="showTitle"/>
-    <div class="row q-gutter-xs" style="height:62px">
+    <div class="row q-pb-xs q-gutter-xs">
       <app-grid-actions-bar
       v-if="selected.length > 0 &&  !$q.screen.xs"
       :permitions="permitions"
@@ -18,28 +18,8 @@
     >
   </app-grid-actions-bar>
   <q-space v-if="$q.platform.is.mobile"/>
-  <app-search
-  v-if="selected.length == 0 && !grid.searchComponent && $q.screen.xs"
-  v-model="search"
-  @update:model-value="getData"
-  style="width: 200px;height:30px;"
-  borderless
-  filled
-  ></app-search>
-  <component
-  v-for="field in grid.searchComponent"
-  :key="field.name" :is="field.is"
-  :label="field.label"
-  :stack-label="false"
-  :options="field.options || options[field.name]"
-  :displayOptionValue="field.displayOptionValue || false"
-  :clearable=false
-  v-model="filter[field.name]"
-  @update:model-value="getData"
-  borderless
-  filled
-  :style="field.style ? field.style : 'width: 100px'">
-</component>
+
+
 <q-space v-if="!$q.platform.is.mobile"/>
 <q-select
 v-show="showComboColumns"
@@ -48,19 +28,28 @@ v-model="visibleColumns"
 multiple
 dense
 options-dense
-outlined
 :display-value="$q.lang.table.columns"
 emit-value
 map-options
-borderless
-filled
-:options="grid.columns"
+rounded
+standout
+:options="aColumns"
 option-value="name"
 options-cover
 @update:model-value="saveConfigGrids"
 style="min-width: 150px">
 </q-select>
 
+</div>
+  <div class="q-gutter-xs col-xs-12 col-sm-6">
+    <app-tabs
+    v-for="field in grid.searchComponent"
+    :key="field.name" :is="field.is"
+    :options="options[field.name]"
+    v-model="tab"
+    @update:model-value="getData"
+    >
+  </app-tabs>
 </div>
 <q-table
 ref="myTable"
@@ -73,7 +62,7 @@ separator="cell"
 :dense="!$q.platform.is.mobile"
 :primaryKey="grid.primaryKey"
 :rows="data"
-:columns="grid.columns"
+:columns="aColumns"
 :selection="selection"
 v-model:selected="selected"
 :visible-columns="visibleColumns"
@@ -165,7 +154,7 @@ v-model:pagination="serverPagination"
   <q-tr :props="props"  @dblclick="onDblClickEdit(props) ">
     <q-td auto-width>
       <q-checkbox dense v-model="props.selected" @click="props.selected = !props.selected"/>
-      <q-btn v-if="showExpandButton(props.row)" size="xs" round flat :icon="props.expand ? 'arrow_drop_up' : 'arrow_drop_down'" @click="props.expand = !props.expand" />
+      <q-btn v-if="showExpandButton(props.row)" size="xs" round flat :icon="props.expand ? 'remove' : 'add'" @click="props.expand = !props.expand" />
     </q-td>
     <q-td v-for="col in props.cols" :key="col.name" :props="props">
       <div v-if="col.editor && col.editor.is == 'q-input'">
@@ -190,10 +179,10 @@ v-model:pagination="serverPagination"
       @update:model-value="handlerCol(col.field, props.row)">
     </component>
   </div>
-    <div v-else>
-      <span class="text-caption">{{cell(props.row,col)}}</span>
-    </div>
-  </q-td>
+  <div v-else>
+    <span class="text-caption">{{cell(props.row,col)}}</span>
+  </div>
+</q-td>
 </q-tr>
 
 <template v-if="gridItems">
@@ -217,45 +206,42 @@ v-model:pagination="serverPagination"
 </template>
 
 <template v-slot:item="props">
-  <div class="q-pa-xs col-xs-12 col-sm-6 col-sm-4 col-lg-3 grid-style-transition"
-  :style="props.selected ? 'transform: scale(0.96);' : ''">
-  <!--app-menu-context :permitions="permitions" :buttons="grid.menuContext ? grid.menuContext : buttonsTopLeft" :handler="handler" :row="props.row" ></app-menu-context-->
+  <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition">
+    <q-card flat>
+      <q-card-actions >
+        <q-space />
+        <app-grid-actions-bar
+        v-if="props.selected"
+        :permitions="permitions"
+        :buttons="buttonsTopLeft"
+        :handler="handler">
+      </app-grid-actions-bar>
+    </q-card-actions>
+    <q-list dense  @click="props.selected = !props.selected">
+      <q-item v-for="(col, index) in props.cols.filter(item => !(item.value == '0,00' | item.value == '' |  item.value == null))" :key="col.name">
 
-  <q-card>
-    <q-card-actions >
-      <!--q-checkbox dense v-model="props.selected" :label="props.row.name" /-->
-      <q-space />
-      <app-grid-actions-bar
-      v-if="props.selected"
-      :permitions="permitions"
-      :buttons="buttonsTopLeft"
-      :handler="handler">
-    </app-grid-actions-bar>
-  </q-card-actions>
-  <q-list dense  @click="props.selected = !props.selected">
-    <q-item v-for="(col, index) in props.cols.filter(item => !(item.value == '0,00' | item.value == '' |  item.value == null))" :key="col.name">
-
-      <q-item-section>
-        <q-item-label caption>{{ col.label }}</q-item-label></q-item-section>
-        <q-item-section caption><q-item-label class="text-caption">
-          <div v-if="col.editor">
-            <component
-            :is="col.editor.is"
-            v-model="props.row[col.field]"
-            :color="props.row[col.editor.fieldColor]"
-            v-bind="col.editor"
-            :options="options[col.field]"
-            @update:model-value="handlerCol(col.field, props.row)">
-          </component>
-        </div>
-        <div v-else>
-          {{cell(props.row,col)}}
-        </div>
-      </q-item-label>
-    </q-item-section>
-  </q-item>
-</q-list>
+        <q-item-section>
+          <q-item-label caption>{{ col.label }}</q-item-label></q-item-section>
+          <q-item-section caption><q-item-label class="text-caption">
+            <div v-if="col.editor">
+              <component
+              :is="col.editor.is"
+              v-model="props.row[col.field]"
+              :color="props.row[col.editor.fieldColor]"
+              v-bind="col.editor"
+              :options="options[col.field]"
+              @update:model-value="handlerCol(col.field, props.row)">
+            </component>
+          </div>
+          <div v-else>
+            {{cell(props.row,col)}}
+          </div>
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+  </q-list>
 </q-card>
+<q-separator />
 </div>
 </template>
 
@@ -343,19 +329,20 @@ import AppCrudExpand from 'components/AppCrudExpand.vue'
 import AppCrudItem from 'components/AppCrudItem.vue'
 import AppFormSection from 'components/AppFormSection.vue'
 import AppGridActionsBar from 'components/AppGridActionsBar.vue'
-import AppSearch from 'components/AppSearch.vue'
+import AppTabs from 'components/AppTabs.vue'
 import AppMenuContext from 'components/AppMenuContext.vue'
 import AppImportDialog from 'components/AppImportDialog.vue'
 import AppFormDialog from 'components/AppFormDialog.vue'
 import { gridMixin } from 'src/mixins/gridMixin.js'
 import { optionsMixin } from 'src/mixins/optionsMixin.js'
 import { configGridsMixin } from 'src/mixins/configGridsMixin.js'
-import { money, clone, openPDF, openTXT, openODS, storage, token } from 'src/modules/utils.js'
+import { money, clone, openODS, storage } from 'src/modules/utils.js'
 import AppInput from 'components/AppInput.vue'
 import AppDate from 'components/AppDate.vue'
 import AppDateTime from 'components/AppDateTime.vue'
 import AppCombobox from 'components/AppCombobox.vue'
 import AppSelect from 'components/AppSelect.vue'
+import { useAuthStore } from 'stores/auth-store'
 
 export default defineComponent({
   name: 'AppCrud',
@@ -365,7 +352,7 @@ export default defineComponent({
     AppCrudItem,
     AppFormSection,
     AppGridActionsBar,
-    AppSearch,
+    AppTabs,
     AppMenuContext,
     AppImportDialog,
     AppFormDialog,
@@ -422,10 +409,12 @@ export default defineComponent({
   },
   data: () => {
     return {
+      tab: '',
       navigationActive: false,
       selection: 'single',
       searchCustom: [],
       visibleColumns: [],
+      aColumns: [],
       gridItems: [],
       total: {},
       money,
@@ -487,23 +476,33 @@ export default defineComponent({
       this.$q.dialog({
         component: AppImportDialog,
         componentProps: {
-          title: `Leiaute csv ${this.grid.title}`,
-          table: this.grid.table,
-          primaryKey: this.grid.primaryKey,
+          title: `Leiaute ${this.form.title}`,
+          table: this.form.table,
+          saveLote: this.form.saveLote ? this.form.saveLote : false,
+          primaryKey: this.form.primaryKey,
           fields: this.form.fields,
           persistent: true,
         }
       })
       .onOk((data) => {
-        if(data.success){
-          this.requestGrid({
-            pagination: this.serverPagination,
-            filter: this.filter,
-            search: this.search
+         if(data.success){
+          this.$api.post('import', {
+            nomeTabela: this.form.table,
+            nomeChave: this.form.primaryKey,
+            saveLote: this.form.saveLote,
+            data: JSON.stringify(data.resultado),
+            fields: JSON.stringify(data.fields),
           })
-        }
-        else {
-          this.$q.notify({type: 'negative', message: data.msg})
+          .then(({data}) => {
+             if(data.success){
+              this.$q.notify({type: 'positive', timeout: 10000, message: data.msg})
+              this.getData()
+            } else {
+              this.$q.notify({type: 'negative', timeout: 10000, message: data.msg})
+            }
+          })
+        } else {
+          this.$q.notify({type: 'negative', timeout: 10000, message: data.msg})
         }
       })
     },
@@ -654,7 +653,7 @@ export default defineComponent({
       (this.grid.rowsPerPageOptions ? this.grid.rowsPerPageOptions : [5,10,15,20])
     },
     tableClass () {
-      return this.navigationActive === true ? 'shadow-10 no-outline' : void 0
+      return this.navigationActive === true ? 'no-outline' : void 0
     },
   },
   mounted () {
@@ -677,8 +676,8 @@ export default defineComponent({
     if(this.serverPagination.sortBy == undefined) {
       this.serverPagination.sortBy =  this.grid.primaryKey
     };
-    if(token) {
-      this.permitions = clone(storage.getItem('fp_permitions').filter(
+    if(useAuthStore().isAuth){
+      this.permitions = clone(useAuthStore().permitions.filter(
         obj => obj.table == this.grid.table ? obj.permitions : null
       ).map(item => item.permitions)[0] || {})
     };
@@ -693,6 +692,7 @@ export default defineComponent({
     }
     //this.permitions.view = !this.permitions.edit
     this.permitions.imprimir = this.permitions.export
+    this.aColumns = clone(this.grid.columns)
   }
 })
 </script>

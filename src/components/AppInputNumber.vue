@@ -1,7 +1,9 @@
 <template>
   <q-input
   ref="input"
-  stack-label
+  v-bind="attrs"
+  rounded
+  standout
   no-error-icon
   hide-bottom-space
   v-model="model"
@@ -16,7 +18,6 @@
   :error-message="errorMessage"
   @update:model-value="input"
   :class="class"
-  v-bind="attrs"
   >
 </q-input>
 </template>
@@ -27,6 +28,7 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   name: 'AppInputNumber',
   inheritAttrs: false,
+  emits: [ 'update:model-value' ],
   props: {
     label: String,
     type: String,
@@ -73,20 +75,20 @@ export default defineComponent({
       return attrs;
     },
     rules() {
-      let rules = [] ;
+      let aRules = [] ;
       if(!(this.model === undefined || this.model === null || this.disable)) {
         if(this.required){
-          rules.push(val => !!val || '')
+          aRules.push(val => !!val || '')
         }
         if(this.minlength > 0 && this.model.length > 0) {
-          rules.push(val =>  val.length >= this.minlength || `Mínimo ${this.minlength} caracteres`)
+          aRules.push(val =>  val.length >= this.minlength || `Mínimo ${this.minlength} caracteres`)
         }
         if(this.maxlength > 0) {
-          rules.push(val => val.length <= this.maxlength  || `Máximo ${this.maxlength} caracteres`)
+          aRules.push(val => val.length <= this.maxlength  || `Máximo ${this.maxlength} caracteres`)
         }
-        rules.push(v =>  v.length > 0 ? /^[\d]+$/.test(v) || `Digite somente números` : true)
+        aRules.push(v =>  v.length > 0 ? /^[\d]+$/.test(v) || `Digite somente números` : true)
       }
-      return rules
+      return aRules
     }
   },
   methods: {

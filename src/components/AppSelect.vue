@@ -1,8 +1,10 @@
 <template>
   <q-select
   ref="input"
+  v-bind="$attrs"
+  rounded
+  standout
   options-dense
-  stackLabel
   hide-bottom-space
   emit-value
   map-options
@@ -18,7 +20,6 @@
   @update:model-value="input"
   :class="class"
   :style="style"
-  v-bind="$attrs"
   >
 </q-select>
 </template>
@@ -29,6 +30,7 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   name: 'AppSelect',
   inheritAttrs: false,
+  emits: [ 'update:model-value', 'blur', 'clear' ],
   props: {
     label: String,
     readonly: Boolean,
@@ -37,8 +39,8 @@ export default defineComponent({
     options: Array,
     class: String,
     style: {
-      type: Object,
-      default: () => {width: 100}
+      type: String,
+      default: () => 'width: 100'
     },
     required: {
       type: Boolean,

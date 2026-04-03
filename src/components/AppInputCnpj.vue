@@ -1,7 +1,9 @@
 <template>
   <q-input
   ref="input"
-  stack-label
+  v-bind="$attrs"
+  rounded
+  standout
   no-error-icon
   hide-bottom-space
   unmasked-value
@@ -27,6 +29,7 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   name: 'AppInputCnpj',
   inheritAttrs: false,
+  emits: [ 'update:model-value', 'blur', 'clear' ],
   props: {
     label: String,
     type: String,
@@ -128,7 +131,7 @@ export default defineComponent({
     onClear(){
       this.model = null;
       this.$emit('update:model-value', this.model);
-      this.$emit('clear', '');
+      this.$emit('clear', 'Campo obrigatório');
     },
     validate () {
       return this.$refs.input.validate()
@@ -148,6 +151,7 @@ export default defineComponent({
       let ret = [];
       if(!this.disable){
         ret.push(val => val ? (this.validaCnpj(val) || 'CNPJ inválido') : true)
+        if(this.required) ret.push(val => !!val || '')
       }
       return ret;
     }

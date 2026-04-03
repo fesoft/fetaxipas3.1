@@ -5,7 +5,7 @@
       v-model="expansion"
       :label="title"
       expand-icon-class="text-white text-weight-bold"
-      class="bg-secondary text-white col-xs-12 col-sm-12 text-weight-bold"
+      class="bg-primary text-white col-xs-12 col-sm-12 text-weight-bold rounded-top-bar"
       style="width: 500px; max-width: 95vw;"
       >
       <q-form
@@ -32,10 +32,10 @@
           ></component>
         </q-card-section>
         <q-separator />
-        <q-card-actions class="justify-center">
-          <q-btn v-if="form.FORMATO.toLowerCase() == 'pdf'" type="submit" size="sm" label="Visualizar" color="positive"/>
-          <q-btn size="sm" label="Baixar" color="secondary" @click="baixar"/>
-          <q-btn type="reset" size="sm" label="Limpar" color="negative"/>
+        <q-card-actions align="center">
+          <q-btn rounded v-if="form.FORMATO.toLowerCase() == 'pdf'" type="submit" size="sm" label="Visualizar" color="positive"/>
+          <q-btn rounded size="sm" label="Baixar" color="secondary" @click="baixar"/>
+          <q-btn rounded type="reset" size="sm" label="Limpar" color="negative"/>
         </q-card-actions>
       </q-card>
     </q-form>
@@ -103,16 +103,12 @@
       @update:model-value="formInput(field.name, form[field.name])"
       ></component>
     </q-card-section>
+    <q-card-actions align="center">
+      <q-btn rounded v-if="form.FORMATO.toLowerCase() == 'pdf'" type="submit" size="sm" label="Visualizar" color="positive"/>
+      <q-btn rounded size="sm" label="Baixar" color="secondary" @click="baixar"/>
+      <q-btn rounded type="reset" size="sm" label="Limpar" color="negative"/>
+    </q-card-actions>
   </q-card>
-  <q-page-sticky v-if="$q.screen.lt.sm " position="bottom-right" :offset="[18, 18]">
-    <q-btn
-    type="submit"
-    round
-    color="positive"
-    icon="save"
-    >
-  </q-btn>
-</q-page-sticky>
 </q-form>
 </div>
 

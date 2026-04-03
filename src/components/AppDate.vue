@@ -1,9 +1,10 @@
 <template>
   <q-input
   ref="input"
+   rounded
+  standout
   no-error-icon
   hide-bottom-space
-  stack-label
   bottom-slots
   mask="##/##/####"
   v-model="model"
@@ -46,6 +47,7 @@ import { date } from 'quasar'
 export default defineComponent({
   name: 'AppDate',
   inheritAttrs: false,
+  emits: [ 'update:model-value' ],
   props: {
     label: String,
     readonly: Boolean,
@@ -150,7 +152,7 @@ export default defineComponent({
       return ret;
     },
     attrs() {
-      const { rules, ...attrs } = this.$attrs;
+      const { rules, type, ...attrs } = this.$attrs;
       return attrs;
     },
   },

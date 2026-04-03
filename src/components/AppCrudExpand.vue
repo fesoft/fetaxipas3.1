@@ -1,9 +1,9 @@
 <template>
   <div>
-    <q-bar class="text-weight-bold">
-      <app-search v-model="filter" dark style="width: 150px"></app-search>
+    <q-bar class="text-weight-bold rounded-top-bar">
+      <app-search v-model="filter" style="width: 150px"></app-search>
       <q-space />
-      <div class="text-weight-bold text-white justify-center">{{grid.title}}</div>
+      <div class="text-weight-bold justify-center">{{grid.title}}</div>
       <q-space />
     </q-bar>
     <q-table

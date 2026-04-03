@@ -19,7 +19,7 @@
       :visible-columns="grid.visibleColumns"
       :row-key="grid.primaryKey"
       :filter="filter"
-      :rows-per-page-options="[5, 10, 20]">
+      :rows-per-page-options="[1000]">
 
       <template v-slot:top>
         <div class="row q-gutter-sm" style="height:40px">
@@ -51,8 +51,6 @@
       <q-space />
       <app-search v-if="selected.length == 0 && !grid.searchComponent"
       v-model="filter"
-      borderless
-      filled
       style="width: 150px;height:30px;">
     </app-search>
   </div>
@@ -79,6 +77,7 @@
       @update:model-value="handlerCol(col.field, props.row)">
     </component>
   </div>
+
   <div v-else>{{cell(props.row,col)}}</div>
 </q-td>
 </q-tr>
@@ -106,7 +105,7 @@
   </q-card-actions>
   <q-separator />
   <q-list dense>
-    <q-item v-for="(col, index) in props.cols.filter(item => item.value !== null)" :key="col.name">
+    <q-item v-for="(col) in props.cols.filter(item => item.value !== null)" :key="col.name">
       <q-item-section>
         <q-item-label caption>{{ col.label }}</q-item-label>
       </q-item-section>
@@ -156,6 +155,7 @@ import { gridItemMixin } from 'src/mixins/gridItemMixin'
 import { money, clone, storage, token } from 'src/modules/utils'
 import AppGridActionsBar from 'components/AppGridActionsBar.vue'
 import AppSearch from 'components/AppSearch.vue'
+import { useAuthStore } from 'stores/auth-store'
 
 export default defineComponent({
   name: 'AppCrudItem',
@@ -206,7 +206,7 @@ export default defineComponent({
       default: () => {}
     },
     none: Boolean,
-    rows: Array,
+    rows: Array | Object,
     readonly: {
       type: Boolean,
       default: () => false,
@@ -238,8 +238,8 @@ export default defineComponent({
     };
     this.selection = this.readonly ? 'none' : 'single';
 
-    if(token) {
-      this.permitions = clone(storage.getItem('fp_permitions').filter(
+    if(useAuthStore().isAuth){
+      this.permitions = clone(useAuthStore().permitions.filter(
         obj => obj.table == this.grid.table ? obj.permitions : null
       ).map(item => item.permitions)[0] || {})
     };
@@ -270,9 +270,6 @@ export default defineComponent({
       remainder(){
         return
       }
-    },
-    mounted () {
-      this.data = clone(this.rows)
     }
   })
   </script>

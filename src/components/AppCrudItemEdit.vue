@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-bar class="text-weight-bold">
+    <q-bar class="text-weight-bold rounded-bar">
       <q-space /><div class="justify-center">{{grid.title}}</div><q-space /></q-bar>
       <q-table
       ref="myTable"
@@ -10,11 +10,11 @@
       :table="grid.table"
       :primaryKey="grid.primaryKey"
       :rows="rows"
-      :columns="grid.columns"
+      :columns="aGrid.columns"
       :visible-columns="visibleColumns"
       :selection="selection"
       v-model:selected="selected"
-      :pagination.sync="pagination"
+      :pagination="pagination"
       :row-key="grid.primaryKey"
       :rows-per-page-options="[6]"
       >
@@ -33,7 +33,7 @@
     <template v-slot:item="props">
       <div class="q-pa-xs col-xs-12">
         <q-card flat>
-          <q-card-section class="row q-pa-none q-col-gutter-xs">
+          <q-card-section class="row q-px-none q-col-gutter-xs">
             <component
             :ref="col.name"
             v-for="col in props.cols"
@@ -59,9 +59,10 @@
 
 <script>
 import { defineComponent } from 'vue'
-import { money, token, storage } from 'src/modules/utils'
+import { money, clone } from 'src/modules/utils'
 import { gridItemMixin } from 'src/mixins/gridItemMixin'
 import AppGridActionsBar from 'components/AppGridActionsBar.vue'
+import { useAuthStore } from 'stores/auth-store'
 
 export default defineComponent({
   name: 'AppCrudItemEdit',
@@ -77,7 +78,8 @@ export default defineComponent({
       //total: [],
       navigationActive: true,
       pagination: {},
-      visibleColumns: []
+      visibleColumns: [],
+      aGrid: {}
     }
   },
   props: {
@@ -149,11 +151,12 @@ export default defineComponent({
   },
   computed: {
     tableClass () {
-      return this.navigationActive === true ? 'shadow-8 no-outline' : void 0
+      return this.navigationActive === true ? 'no-outline' : void 0
     }
   },
   mounted () {
     this.visibleColumns = this.grid.visibleColumns;
+    this.aGrid = clone(this.grid)
     if(this.rows) {
       this.data = this.rows ? this.rows : []
     };
@@ -161,8 +164,8 @@ export default defineComponent({
       this.total = this.summary ? this.summary : {}
     };
     this.selection = this.readonly ? 'none' : 'single';
-    if(token) {
-      this.permitions = storage.getItem('fp_permitions').filter(
+    if(useAuthStore().isAuth){
+      this.permitions = useAuthStore().permitions.filter(
         obj => obj.table == this.grid.table ? obj.permitions : null
       ).map(item => item.permitions)[0] || {}
     };

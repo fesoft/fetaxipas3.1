@@ -1,7 +1,8 @@
 <template>
   <q-input
   ref="input"
-  stack-label
+  rounded
+  standout
   no-error-icon
   hide-bottom-space
   unmasked-value
@@ -27,6 +28,7 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   name: 'AppInputCpf',
   inheritAttrs: false,
+  emits: [ 'update:model-value', 'blur', 'clear'],
   props: {
     label: String,
     type: String,

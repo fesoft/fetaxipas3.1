@@ -150,6 +150,7 @@ import { configGridsMixin } from 'src/mixins/configGridsMixin.js'
 import { money, clone, openPDF, openTXT, openODS, token, storage } from 'src/modules/utils.js'
 import AppInput from 'components/AppInput.vue'
 import AppDate from 'components/AppDate.vue'
+import { useAuthStore } from 'src/stores/auth-store'
 
 export default defineComponent({
   name: 'AppCrudItem2',
@@ -271,8 +272,8 @@ export default defineComponent({
         this.data = this.rows ? this.rows : []
       }
       this.selection = this.readonly ? 'none' : this.selection;
-      if(token) {
-        this.permitions = clone(storage.getItem('fp_permitions').filter(
+      if(useAuthStore().isAuth){
+        this.permitions = clone(useAuthStore().permitions.filter(
           obj => obj.table == this.grid.table ? obj.permitions : null
         ).map(item => item.permitions)[0] || {})
       };

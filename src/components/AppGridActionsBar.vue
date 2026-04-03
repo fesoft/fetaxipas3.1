@@ -7,6 +7,7 @@
     :is="button.is"
     size="sm"
     v-bind="button"
+    rounded
     :handler="handler"
     @click.stop="button.is == 'q-btn' ? handler(button.name) : ''"
     >

@@ -1,1 +1,71 @@
 // app global css in SCSS form
+
+.rounded-top-bar {
+  border-top-left-radius: 16px !important;
+  border-top-right-radius: 16px !important;
+  overflow: hidden;
+}
+.rounded-bar {
+  border-radius: 16px !important; /* Ajuste o valor conforme desejado */
+  overflow: hidden; /* Garante que o conteúdo respeite o arredondamento */
+}
+
+/*light*/
+.q-field--standout.q-field--highlighted .q-field__control {
+  background: #d0cece !important;
+}
+
+.q-field--standout.q-field--highlighted .q-field__native, .q-field--standout.q-field--highlighted .q-field__prefix, .q-field--standout.q-field--highlighted .q-field__suffix, .q-field--standout.q-field--highlighted .q-field__prepend, .q-field--standout.q-field--highlighted .q-field__append, .q-field--standout.q-field--highlighted .q-field__input {
+  color: #2c2b2b;
+}
+
+.body--dark .q-field--standout.q-field--highlighted .q-field__control {
+  background: #454545 !important;
+}
+
+.body--dark .q-field--standout.q-field--dark.q-field--highlighted .q-field__native, .q-field--standout.q-field--dark.q-field--highlighted .q-field__prefix, .q-field--standout.q-field--dark.q-field--highlighted .q-field__suffix, .q-field--standout.q-field--dark.q-field--highlighted .q-field__prepend, .q-field--standout.q-field--dark.q-field--highlighted .q-field__append, .q-field--standout.q-field--dark.q-field--highlighted .q-field__input {
+  color: #fff;
+}
+
+/* Aplica o estilo aos componentes filhos do Quasar */
+.custom-tabs {
+  border-radius: 20px;
+  overflow: hidden;
+  /* Cor de fundo padrão (tema claro) */
+  background-color: #e0e0e0;
+  transition: background-color 0.3s ease;
+}
+
+/* Quando o modo escuro estiver ativo, muda o fundo do container */
+.body--dark .custom-tabs {
+  background-color: #2c2c2c; /* tom escuro que combina com o fundo do Quasar */
+}
+
+.custom-tabs .q-tab--active {
+  border-radius: 20px;
+  /* Usa a cor primária definida no tema (se adapta ao claro/escuro por definição) */
+  background-color: #a745c4;
+  color: white;
+}
+
+/* Opcional: cor diferente para a aba ativa no modo escuro (descomente se necessário) */
+
+.body--dark .custom-tabs .q-tab--active {
+  background-color: #a745c4;
+}
+
+
+.custom-tabs .q-tab {
+  transition: all 0.2s ease;
+}
+
+.custom-tabs .q-tab:hover:not(.q-tab--active) {
+  background-color: rgba(181, 88, 150, 0.1);
+  border-radius: 20px;
+}
+
+/* Ajuste do hover para o modo escuro */
+.body--dark .custom-tabs .q-tab:hover:not(.q-tab--active) {
+  background-color: rgba(255, 255, 255, 0.1);
+
+}

@@ -1,6 +1,3 @@
-//import * as XLSX from 'xlsx/xlsx.mjs'
-import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.19.3/package/xlsx.mjs"
-
 import { LocalStorage, SessionStorage, Platform } from 'quasar'
 export const storage = Platform.is.mobile ? LocalStorage : SessionStorage;
 export const token = () => storage.getItem('fp_token');
@@ -11,6 +8,89 @@ const rowKeysToCsv = (row, seperator = ';') => arrayToCsv(Object.keys(row));
 const rowToCsv = (row, seperator = ';') => arrayToCsv(Object.values(row));
 const rowsToCsv = (arr, seperator = ';') => arr.map(row => rowToCsv(row, seperator)).join('\n');
 const collectionToCsvWithHeading = (arr, seperator = ';') => `${rowKeysToCsv(arr[0], seperator)}\n${rowsToCsv(arr, seperator)}`;
+
+export const formatarTempo = (totalMileSegundos) => {
+  // Cálculo dos componentes
+  const days = Math.floor(totalMileSegundos / (1000 * 60 * 60 * 24));
+  const remainingMsAfterDays = totalMileSegundos % (1000 * 60 * 60 * 24);
+  const hours = Math.floor(remainingMsAfterDays / (1000 * 60 * 60));
+  const remainingMsAfterHours = remainingMsAfterDays % (1000 * 60 * 60);
+  const minutes = Math.floor(remainingMsAfterHours / (1000 * 60));
+
+  // Formatação condicional
+  if (days > 0) {
+    return `${days} dias`;
+  } else if (hours >= 1) {
+    return `${hours} hora e ${minutes} minutos`;
+  } else {
+    return `${minutes} minutos`;
+  }
+}
+
+export  const getBase64 = (file) => {
+       var reader = new FileReader();
+       return new Promise((resolve, reject) => {
+           reader.onerror = () => {
+               reader.abort();
+               reject(new DOMException("Problem parsing input file."));
+           };
+           reader.onload = () => {
+               resolve(reader.result);
+           };
+           reader.readAsDataURL(file);
+       });
+   }
+
+   export const openFile = (data, fileName) => {
+   let content = data;
+   var a = document.createElement('a');
+   a.href = encodeURI(content);
+   a.download = fileName ? fileName : 'Arquivo.pdf';
+   a.click();
+ };
+
+
+export const getFileArrayBuffer = (file) => {
+  var reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    reader.onerror = () => {
+      reader.abort();
+      reject(new DOMException("Problem parsing input file."));
+    };
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+export const SheetToJsonNode = (file, type = 'ods', options = {}) => {
+  // Verifica se o objeto file possui um buffer
+  if (!file || !file.buffer) {
+      throw new Error('Objeto de arquivo inválido ou buffer não encontrado');
+  }
+
+  try {
+      // Lê o buffer diretamente
+      const workbook = XLSX.read(file.buffer, {
+          type: 'buffer',
+          bookType: type,
+          cellDates: true
+      });
+
+      // Pega a primeira planilha
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      let opts = { ...options, raw: false,  defval: '' };
+
+      // Converte para JSON
+      return XLSX.utils.sheet_to_json(worksheet, opts);
+
+  } catch (error) {
+      throw new Error(`Erro na conversão: ${error.message}`);
+  }
+}
+
 
 export const openCSV = (data, fileName) => {
   var universalBOM = "\uFEFF";
@@ -244,3 +324,139 @@ export const validaCpf = (cpf) => {
     case 'C': return 'Cancelada'; break;
   }
 };
+
+
+export const maskData = (str) => {
+  if (typeof str !== 'string') return ''; // Garante que o input é string
+
+  // Mascarar e-mails
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str)) {
+    const [localPart, domain] = str.split('@');
+    const maskedLocal = localPart.length <= 2
+      ? localPart[0] + '*'.repeat(localPart.length - 1)
+      : localPart[0] + '*'.repeat(Math.max(3, localPart.length - 2)) + localPart.slice(-1);
+    return maskedLocal + '@' + domain;
+  }
+
+  // Mascarar telefones (padrão brasileiro)
+  const digits = str.replace(/\D/g, '');
+  if ([10, 11].includes(digits.length)) {
+    const ddd = digits.substring(0, 2);
+    const lastFour = digits.substring(digits.length - 4);
+    const middle = '*'.repeat(digits.length - 6);
+    return digits.length === 10
+      ? `(${ddd}) ${middle}-${lastFour}`
+      : `(${ddd}) ${digits[2]}${middle}-${lastFour}`;
+  }
+
+  // Mascarar nomes
+  return str.split(/(\s+)/) // Mantém os espaços originais
+    .map(part => {
+      if (part.trim().length <= 1) return part;
+      if (/^\s+$/.test(part)) return part; // Preserva espaçamento
+      return part[0] + '*'.repeat(Math.max(2, part.length - 2)) + (part.length > 1 ? part.slice(-1) : '');
+    })
+    .join('');
+}
+
+export const verificarForcaSenha = (senha, nomeUsuario) => {
+  let forca = 0;
+
+  // Critério 1: Comprimento da senha
+  if (senha.length >= 8) {
+    forca += 1;
+  }
+
+  // Critério 2: Letras maiúsculas
+  if (/[A-Z]/.test(senha)) {
+    forca += 1;
+  }
+
+  // Critério 3: Letras minúsculas
+  if (/[a-z]/.test(senha)) {
+    forca += 1;
+  }
+
+  // Critério 4: Números
+  if (/[0-9]/.test(senha)) {
+    forca += 1;
+  }
+
+  // Critério 5: Caracteres especiais
+  if (/[\W_]/.test(senha)) {
+    forca += 1;
+  }
+
+  // Critério 6: Verificar se a senha contém 3 ou mais caracteres seguidos do nome do usuário
+  if (nomeUsuario) {
+    const nomeUsuarioLower = nomeUsuario.toLowerCase();
+    const senhaLower = senha.toLowerCase();
+    for (let i = 0; i <= nomeUsuarioLower.length - 3; i++) {
+      const substring = nomeUsuarioLower.substring(i, i + 3);
+      if (senhaLower.includes(substring)) {
+        return 'FRACA';
+      }
+    }
+  }
+
+  // Critério 7: Verificar se a senha contém sequências numéricas ou alfabéticas
+  const sequencias = [
+    '0123456789', 'abcdefghijklmnopqrstuvwxyz', 'abcdefghijklmnopqrstuvwxyz'.toUpperCase()
+  ];
+  for (let seq of sequencias) {
+    for (let i = 0; i <= seq.length - 3; i++) {
+      const substring = seq.substring(i, i + 3);
+      if (senha.includes(substring)) {
+        return 'FRACA';
+      }
+    }
+  }
+
+  // Critério 8: Verificar se a senha contém números ou letras repetidas
+  if (/(\d)\1{2,}/.test(senha) || /([a-zA-Z])\1{2,}/.test(senha)) {
+    return 'FRACA';
+  }
+
+  // Avaliação da força da senha
+  if (forca === 5) {
+    return 'FORTE';
+  } else if (forca >= 3) {
+    return 'MODERADA';
+  } else if (forca >= 2) {
+    return 'FRACA';
+  }
+}
+
+export const enviarMensagemWhatsApp = (numero, mensagem) => {
+  // Formata o número sem espaços, parênteses ou traços
+  numero = numero.replace(/\D/g, '');
+  numero = '+55' + numero; // Adiciona o código do país (Brasil: +55)
+
+  // Codifica a mensagem para a URL
+  const mensagemCodificada = encodeURIComponent(mensagem);
+
+  // Monta o link da API do WhatsApp
+  const link = `https://wa.me/${numero}?text=${mensagemCodificada}`;
+
+  // Abre o link em uma nova janela ou aba
+  window.open(link, '_blank');
+};
+
+export const padronizarTexto = (nome) => {
+    const conectivos = ['de', 'da', 'do', 'das', 'dos', 'e', 'a', 'ao', 'aos', 'o', 'as', 'os', 'em', 'no', 'na', 'nos', 'nas', 'com', 'para', 'por', 'sem', 'sob', 'sobre'];
+
+    return nome
+        .toLowerCase()
+        .split(' ')
+        .map((palavra, index, array) => {
+            // Verifica se a palavra é um conectivo e não é a primeira palavra
+            if (conectivos.includes(palavra) && index !== 0) {
+                return palavra;
+            }
+            // Capitaliza a primeira letra de cada palavra
+            return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+        })
+        .join(' ');
+}
+
+

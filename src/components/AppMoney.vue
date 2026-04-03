@@ -1,16 +1,18 @@
 <template>
   <q-input
   ref="input"
-  stack-label
+  rounded
+  standout
   no-error-icon
   hide-bottom-space
   v-model="model"
   :label="label"
   :input-class="inputClass"
-  :rules="aRules"
+  :rules="rules"
   :readonly="readonly"
   :disable="disable"
   :class="class"
+  v-bind="attrs"
   @update:model-value = "$emit('update:model-value', value)"
   >
 </q-input>
@@ -22,6 +24,7 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   name: 'AppMoney',
   inheritAttrs: false,
+  emits: [ 'update:model-value' ],
   props: {
     label: String,
     type: String,
@@ -95,20 +98,25 @@ export default defineComponent({
     model: {
       get () { return this.formatter.format(this.modelValue || 0) },
       set (modelValue) {
-        let onlyNumbers = modelValue.replace(/\D/gi, '') || '0'
-        let int = parseInt(onlyNumbers)
-        let decimal = int / Math.pow(10, this.precision)
-        this.value = decimal
-        //this.$emit('update:model-value', this.value)
-      }
+          let negative = modelValue.substring(0,1) == '-' ? true : false;
+          let onlyNumbers = modelValue.replace(/\D/gi, '') || '0'
+          let int = parseInt(onlyNumbers)
+          let decimal = int / Math.pow(10, this.precision)
+          decimal = negative ? decimal * -1 : decimal;
+          this.value = decimal
+        }
     },
-    aRules() {
+    rules() {
       let ret = [];
       if(this.required && !this.disable){
           ret.push( val => !(val == '0,00') || '')
       }
       return ret;
-    }
+    },
+    attrs() {
+      const { rules, ...attrs } = this.$attrs;
+      return attrs;
+    },
   },
 })
 </script>
