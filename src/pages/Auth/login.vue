@@ -131,3 +131,23 @@ export default defineComponent({
 }
 )
 </script>
+
+<style>
+/* Modo escuro */
+.body--dark input:-webkit-autofill,
+.body--dark input:-webkit-autofill:hover,
+.body--dark input:-webkit-autofill:focus,
+.body--dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #1d1d1d inset !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* Modo claro */
+.body--light input:-webkit-autofill,
+.body--light input:-webkit-autofill:hover,
+.body--light input:-webkit-autofill:focus,
+.body--light input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+</style>

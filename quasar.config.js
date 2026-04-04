@@ -126,7 +126,7 @@ export default configure((ctx) => {
         'LocalStorage',
         'SessionStorage',
         'Dialog',
-        'AppFullscreen'
+        'AddressbarColor'
       ]
     },
 

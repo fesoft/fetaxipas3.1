@@ -4,7 +4,7 @@
       <q-form ref="myForm" autocorrect="off" autocapitalize="off" autocomplete="off" spellcheck="false"
         @submit="onSubmit" @reset="onReset" @validation-error="onValidateError">
 
-        <q-card>
+        <q-card flat>
           <q-bar v-if="!$q.platform.is.mobile" class="bg-primary text-white rounded-top-bar">
             <div class="text-weight-bold justify-center">{{ formTitle }}</div>
           </q-bar>
@@ -31,7 +31,7 @@
             </div>
           </q-card-section>
 
-          <q-separator />
+          
           <q-card-actions v-if="!buttons && !readonly" align="center">
             <q-btn rounded v-if="!readonly" type="submit" size="sm" label="Salvar" :disable="disable" color="positive" />
             <q-btn rounded v-if="!$q.platform.is.mobile" color="primary" label="Sair" size="sm" @click="onCancelClick" />
