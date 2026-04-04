@@ -1,5 +1,4 @@
 import { register } from 'register-service-worker'
-import { Notify } from 'quasar'
 
 // The ready(), registered(), cached(), updatefound() and updated()
 // events passes a ServiceWorkerRegistration instance in their arguments.
@@ -29,24 +28,11 @@ register(process.env.SERVICE_WORKER_FILE, {
   },
 
   updated (/* registration */) {
-    Notify.create({
-     message: 'Nova atualização disponivel',
-     icon: 'mdi-cloud-download-outline',
-     closeBtn: 'Atualizar',
-     timeout: 50000,
-     onDismiss () {
-       location.reload(true)
-     }
-   })
+    // console.log('New content is available; please refresh.')
   },
 
   offline () {
-    Notify.create({
-     message: 'Você está sem internet',
-     icon: 'mdi-cloud-download-outline',
-     timeout: 5000,
-     type: 'negative'
-   })
+    // console.log('No internet connection found. App is running in offline mode.')
   },
 
   error (/* err */) {
